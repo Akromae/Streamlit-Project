@@ -13,13 +13,13 @@ import time
 import talib
 from TA_technical_patterns import candlestick_patterns
 import plotly.graph_objects as go
-# import pyfolio as pf
+import pyfolio as pf
 import seaborn as sns
 import pandas_ta as ta
 import plotly.express as px
 import numpy as np
 from plotly.subplots import make_subplots
-# import altair as alt
+import altair as alt
 # from functions_streamlit import *
 
 Fondamental_data_path='D:\\Julien\\Investissement\\Streamlit\\Histo Data Fondamental'
