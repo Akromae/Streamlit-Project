@@ -19,16 +19,15 @@ import pandas_ta as ta
 import plotly.express as px
 import numpy as np
 from plotly.subplots import make_subplots
+from pandas.tseries.offsets import BDay
+
 # import altair as alt
 # from functions_streamlit import *
 
 Fondamental_data_path='D:\\Julien\\Investissement\\Streamlit\\Histo Data Fondamental'
 Stock_prices_data_path='D:\\Julien\\Investissement\\Streamlit\\Histo Data Stock prices'
 Crypto_data_file='D:\\Julien\\Investissement\\Symboles\\Crypto Tickers EUR.xlsx'
-# index='S&P500'
 Index_list=['Cryptocurrencies','CAC Index','S&P500','NASDAQ 100','RUSSEL 1000','AEX Index','AS25 Index','BEL20 Index','CH30 Index','DAX Index','FTSEMIB Index','HDAX Index','HEX25 Index','IBEX Index','NEY Index','OMX Index','OMXC25 Index','SBF120 Index','SMI Index','SPTSX60 Index','NASDAQ 1','NASDAQ 2','NASDAQ 3','NASDAQ 4']
-# Index_list=['Cryptocurrencies']
-# Index_list=['CAC Index','S&P500','NASDAQ 100','RUSSEL 1000']
 # Index_list=['Cryptocurrencies']
 
 ####################################################################################################################
@@ -56,8 +55,8 @@ def fillcol(label):
         return 'rgba(255, 0, 0, 0.3)'
     
 # date=Today_date()
-date=Today_date(0)
-date_fonda=Today_date(0)#'2021-11-27'
+date=Today_date(1)
+date_fonda=Today_date(1)#'2021-11-27'
 
 ####################################################################################################################
 #Execution of cash functions
@@ -99,6 +98,8 @@ hide_streamlit_style = """
             </style>
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+
+template_plotly="plotly_dark"
 
 ####################################################################################################################
 #Display Streamlit function
@@ -214,8 +215,10 @@ if Asset:
         dict_ticker_to_name.clear()
         dict_ticker_to_name.update(filtered)
         df_prices=df_prices.iloc[:,df_prices.columns.get_level_values(0).isin(Index)]
-        # st.dataframe(df_prices.tail(200))
+        df_prices=df_prices[df_prices.index.dayofweek < 5]
         df_market=df_market.loc[:, df_market.columns.get_level_values(0).isin(Index)]
+        df_market=df_market[df_market.index.dayofweek < 5]
+        # st.dataframe(df_market.tail(20))
     else:
         Index  = ['Cryptocurrencies']
         dict_ticker_to_name=dict(zip(Df_crypto_name.index,Df_crypto_name['Name']))
@@ -462,7 +465,7 @@ elif page == "Focus":
             df_fondamental_Index_filter_ticker=df_fondamental_Index[df_fondamental_Index.Ticker.isin([dict_name_to_ticker[stock_name_Focus]])]
             st.dataframe(df_fondamental_Index_filter_ticker[df_fondamental_Index_filter_ticker.Attribute.isin(['industry','sector'])])
         df_prices_Focus=df_prices[dict_name_to_ticker[stock_name_Focus]].dropna()
-        st.line_chart(df_prices_Focus)
+        # st.line_chart(df_prices_Focus)
         df_market_Focus_ticker=df_market_Focus.loc[:,df_market_Focus.columns.get_level_values(0)==dict_name_to_ticker[stock_name_Focus]]
         df_market_Focus_ticker.columns=df_market_Focus_ticker.columns.droplevel(0)
         df_market_Focus_ticker=df_market_Focus_ticker.dropna()
@@ -498,7 +501,9 @@ elif page == "Focus":
         #############################################
         #Bon Fill
         
+        # st.dataframe(df_market_Focus_ticker.tail(20))
         df_ichi=df_market_Focus_ticker.ta.ichimoku()[0]
+        # df_ichi.index=df_ichi.index.strftime("%d/%m/%Y")
         # df_market_Focus_ticker.index = df_market_Focus_ticker.index.strftime("%d %b, %Y")
         # xaxis=dict(type = "category")
         # st.dataframe(df_ichi)
@@ -517,10 +522,11 @@ elif page == "Focus":
         
         # try:
         # fig = px.line(df1[['ITS_9','IKS_26','ICS_26']],width=1300, height=600)
-        layout = go.Layout(xaxis_rangeslider_visible=False,width=1500,height=600)
+        layout = go.Layout(xaxis_rangeslider_visible=False,width=1500,height=600,template=template_plotly)#,xaxis=dict(type='category'))
         # fig.update_layout(xaxis_rangeslider_visible=False
         fig = go.Figure(layout=layout) 
-        
+        fig.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
+        # fig.update_xaxes(dict(bounds=["sat", "mon"]))
         fig.add_traces(go.Candlestick(x=df_market_Focus_ticker.index,
                                     open=df_market_Focus_ticker['Open'],
                                     high=df_market_Focus_ticker['High'],
@@ -528,15 +534,15 @@ elif page == "Focus":
                                     close=df_market_Focus_ticker['Close'],name="Stock"))
         fig.add_traces(go.Scatter(x=df_ichi.index,
                                   y = df_ichi.ITS_9,
-                                  line = dict(color = '#ff7f0e', width=1),
+                                  line = dict(color = '#ff7f0e', width=1.5),
                                   name="ITS_9"))
         fig.add_traces(go.Scatter(x=df_ichi.index,
                                   y = df_ichi.ICS_26,
-                                  line = dict(color = 'brown', width=1),
+                                  line = dict(color = 'brown', width=1.5),
                                   name="ICS_26"))
         fig.add_traces(go.Scatter(x=df_ichi.index,
                                   y = df_ichi.IKS_26,
-                                  line = dict(color = '#1f77b4', width=1),
+                                  line = dict(color = '#1f77b4', width=1.5),
                                   name="IKS_26"))
         for df in dfs:
             fig.add_traces(go.Scatter(x=df.index,
@@ -553,41 +559,17 @@ elif page == "Focus":
             
         Fig_candlestick_setup(fig)
         #############################################
-        
-        # a1 = df1.plot()
-        # a1.fill_between(df1.index, df1.ISA_9, df1.ISB_26)
+
         st.plotly_chart(fig)
-
-        #############################################
-        # fig = go.Figure()
-        # fig.add_trace(go.Scatter(x=df1.index, y=df1[['ISA_9','ITS_9','IKS_26','ICS_26']],
-        #     fill=None,
-        #     mode='lines',
-        #     line_color='indigo',
-        #     ))
-        # fig.add_trace(go.Scatter(
-        #     x=df1.index,
-        #     y=df1[['ISB_26']],
-        #     fill='tonexty', # fill area between trace0 and trace1
-        #     mode='lines', line_color='indigo'))
-        
-        # def fillcol(label):
-        #     if label >= 1:
-        #         return 'rgba(0,250,0,0.4)'
-        #     else:
-        #         return 'rgba(250,0,0,0.4)'
-            
-        # df1['label'] = np.where(df1['ISA_9']>df1['ISB_26'], 1, 0)
-        
-        # st.dataframe(df1)
-        
-
         
         df2=ta.bbands(df_market_Focus_ticker['Close']).dropna()
-        # st.dataframe(df_market_Focus_ticker)
-        # st.dataframe(df2)
-        # fig2 = px.line(df_market_Focus_ticker['Close'],width=1300, height=800)
-        fig2 = px.line(df2[['BBL_5_2.0','BBU_5_2.0']],width=1350, height=600)#'BBM_5_2.0'
+        fig2 = go.Figure(layout=layout) 
+        # fig2.add_traces(go.Candlestick(x=df_market_Focus_ticker.index,
+                                    # open=df_market_Focus_ticker['Open'],
+                                    # high=df_market_Focus_ticker['High'],
+                                    # low=df_market_Focus_ticker['Low'],
+                                    # close=df_market_Focus_ticker['Close'],name="Stock"))
+        
         fig2.add_traces(go.Scatter(x=df_market_Focus_ticker.index, y = df_market_Focus_ticker['Close'],name="Stock Close Price"))
         st.plotly_chart(fig2)
         
@@ -596,20 +578,30 @@ elif page == "Focus":
         # st.dataframe(df3)
         # st.dataframe(df4)
         # st.write(df4.columns)
+        # fig3 = go.Figure(layout=layout) 
         fig3 = make_subplots(rows=3, cols=1,
                     shared_xaxes=True,
-                    vertical_spacing=0.01)
+                    vertical_spacing=0.01,
+                    row_width=[0.15, 0.15, 0.3])
+        # fig3=go.Figure(layout=layout)
         # fig2 = px.line(df_market_Focus_ticker['Close'],width=1300, height=800)
         # fig3 = px.line(df3[['MACD_12_26_9','MACDh_12_26_9']],width=1300, height=800)
-        fig3.append_trace(go.Scatter(x=df_market_Focus_ticker.index, y = df_market_Focus_ticker['Close'],name="Stock Price"), row=1, col=1)
-        fig3.append_trace(go.Scatter(x=df3.index, y = df3['MACD_12_26_9'],name="MACD"), row=2, col=1)
+        # fig3.append_trace(go.Scatter(x=df_market_Focus_ticker.index, y = df_market_Focus_ticker['Close'],name="Stock Price"), row=1, col=1)
+        fig3.append_trace(go.Candlestick(x=df_market_Focus_ticker.index,
+                                    open=df_market_Focus_ticker['Open'],
+                                    high=df_market_Focus_ticker['High'],
+                                    low=df_market_Focus_ticker['Low'],
+                                    close=df_market_Focus_ticker['Close'],name="Stock"), row=1, col=1)
+        fig3.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
+        fig3.append_trace(go.Bar(x=df3.index, y = df3['MACD_12_26_9'],name="MACD"), row=2, col=1,)#df3.index.strftime("%Y/%m/%d")
+        fig3.add_trace(go.Scatter(x=df3.index, y = df3['MACDh_12_26_9'],name="MACD fast",showlegend=False), row=2, col=1)
+        fig3.add_trace(go.Scatter(x=df3.index, y = df3['MACDs_12_26_9'],name="MACD slow",showlegend=False), row=2, col=1)
         fig3.append_trace(go.Scatter(x=df4.index, y = df4["RSI_14"],name="RSI"), row=3, col=1)
         # fig3.append_trace(go.Scatter(x=df2.index, y = df2['BBL_5_2.0'],name="BBANDS1"), row=3, col=1)
         # fig3.add_traces(go.Scatter(x=df2.index, y = df2['BBU_5_2.0'],name="BBANDS"))
-        fig3.update_layout(height=1000, width=1300, title_text="Momentum indicators")
+        fig3.update_layout(height=1000, width=1500, title_text="Momentum indicators", xaxis_rangeslider_visible=False)
+        Fig_candlestick_setup(fig3)
         st.plotly_chart(fig3)
-    
-    # st.write(df_fondamental_Index[df_fondamental_Index.Ticker==dict_name_to_ticker[stock_name_Index]])
 
 elif page == "Technical Analysis":
     
@@ -624,23 +616,15 @@ elif page == "Technical Analysis":
             pattern_list = list(candlestick_patterns.values())
         else:
             pattern_list = pattern_list
-    # Index_sorted_focus=Index_sorted.append('All')
         
         for pattern in pattern_list:
             for ticker in sorted(df_market_TA.columns.get_level_values(1).unique().tolist()):
                 pattern_function = getattr(talib, list(candlestick_patterns.keys())[list(candlestick_patterns.values()).index(pattern)])
-                
-                # try:
-                # st.write(ticker)
-                # st.write("begin loop")
-                # st.write(df_market_TA)
+
                 df_market_TA_ticker=df_market_TA.loc[:,df_market_TA.columns.get_level_values(1)==ticker]
-                # st.write(df_market_TA)
-                # df_market_TA_ticker=df_market_TA.copy()
                 df_market_TA_ticker.columns=df_market_TA_ticker.columns.droplevel(0)
                 df_market_TA_ticker.columns=df_market_TA_ticker.columns.droplevel(0)
                 df_market_TA_ticker=df_market_TA_ticker.dropna()
-                # st.write(df_market_TA_ticker)
                 results = pattern_function(df_market_TA_ticker['Open'], df_market_TA_ticker['High'], df_market_TA_ticker['Low'], df_market_TA_ticker['Close'])
                 last = results.tail(1).values[0]
                 if last > 0:
@@ -679,16 +663,7 @@ elif page == "Technical Analysis":
         
             for pattern in patterns_sorted:
                 pattern_function = getattr(talib, list(candlestick_patterns.keys())[list(candlestick_patterns.values()).index(pattern)])
-                # st.write(Stock_TA_tick)
-                # try:
-                # st.write(ticker)
-                # st.write("begin loop")
-                # st.dataframe(df_market_TA)
-                # st.dataframe(df_market_TA_ticker)
                 df_market_TA_ticker=df_market_TA.loc[:,df_market_TA.columns.get_level_values(1)==Stock_TA_tick]
-                # st.write(df_market_TA)
-                # df_market_TA_ticker=df_market_TA.copy()
-                # st.dataframe(df_market_TA_ticker)
                 df_market_TA_ticker.columns=df_market_TA_ticker.columns.droplevel(0)
                 df_market_TA_ticker.columns=df_market_TA_ticker.columns.droplevel(0)
                 df_market_TA_ticker=df_market_TA_ticker.dropna()
@@ -745,14 +720,6 @@ elif page == "Technical Analysis":
                    i+=1
             if len(patterns_sorted)==i:
                 st.write("No Technical indicators bullish or bearish for "+str(ticker_name)+" stock")
-# Index=['NASDAQ']
 
-
-# test=list(dict_ticker_to_name.values())
-###############################################
-#Sector definition
-
-# stock_list=list(dict_ticker_to_name.values())#.insert(0, "All")
-# Stock_TA=st.sidebar.selectbox("Select a stock :", stock_list)
 
 print("Temps d'execution : %s secondes" % (time.time() - start_time))
