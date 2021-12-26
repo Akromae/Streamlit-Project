@@ -51,10 +51,13 @@ def Fig_candlestick_setup(fig,position=0):
     fig.update_yaxes(showspikes=True, spikemode='across', spikesnap='cursor', spikedash='solid',spikecolor="grey",spikethickness=1)
     fig.update_xaxes(showspikes=True, spikemode='across', spikesnap='cursor', spikedash='solid',spikecolor="grey",spikethickness=1)
 
-def Fig_setup():
+def Fig_setup(fig='',width=1500,height=600):
     
-    layout = go.Layout(xaxis_rangeslider_visible=False,width=1600,height=600,template=template_plotly)
+    layout = go.Layout(xaxis_rangeslider_visible=False,width=width,height=height,template=template_plotly)
     
+    if fig!='':
+        fig3.update_layout(width=width,height=height,template=template_plotly)
+                           
     return layout
 
 def Hide_weekends(fig,Asset_input):
@@ -564,7 +567,7 @@ elif page == "Focus":
         # fig = go.Figure(layout=Fig_setup()) 
         fig3 = make_subplots(rows=5, cols=1,
                     shared_xaxes=True,
-                    vertical_spacing=0.01,
+                    vertical_spacing=0.015,
                     row_width=[0.2, 0.2, 0.1,0.4,0.4])
 
         fig3.append_trace(go.Candlestick(x=df_market_Focus_ticker.index,
@@ -646,6 +649,7 @@ elif page == "Focus":
         # st.dataframe(df_market_Focus_ticker)
         
         fig3.append_trace(go.Bar(x=df_market_Focus_ticker.index, y = df_market_Focus_ticker['Volume'],name="Volume"), row=3, col=1)
+        # fig3.update_layout(height=1000, width=1500, title_text="Momentum indicators", xaxis3_rangeslider_visible=False,template=template_plotly)# garder commentaire :xaxis_showticklabels=True)#,hoverdistance=0)
         # if Asset=='Stocks':
         #     fig3.update_xaxes(rangebreaks=[dict(bounds=["sat", "mon"])])
         
@@ -658,20 +662,25 @@ elif page == "Focus":
         fig3.update_xaxes(showspikes=True, spikemode='across', spikesnap='cursor', spikedash='dot',spikecolor="grey",spikethickness=1)
         # st.dataframe(df3.tail(50))
         # fig3=go.Figure(layout=layout)            
-        fig3.append_trace(go.Bar(x=df3.index, y = df3['MACDh_12_26_9'],name="MACD",marker_color=df3['Color']), row=4, col=1,)#df3.index.strftime("%Y/%m/%d")
-        fig3.add_trace(go.Scatter(x=df3.index, y = df3['MACD_12_26_9'],name="MACD histogram",showlegend=False), row=4, col=1)
+        fig3.append_trace(go.Bar(x=df3.index, y = df3['MACDh_12_26_9'],name="MACD histogram",marker_color=df3['Color']), row=4, col=1,)#df3.index.strftime("%Y/%m/%d")
+        fig3.add_trace(go.Scatter(x=df3.index, y = df3['MACD_12_26_9'],name="MACD",showlegend=False), row=4, col=1)
         fig3.add_trace(go.Scatter(x=df3.index, y = df3['MACDs_12_26_9'],name="MACD signal",showlegend=False), row=4, col=1)
         fig3.append_trace(go.Scatter(x=df4.index, y = df4["RSI_14"],name="RSI"), row=5, col=1)
         # fig3.append_trace(go.Scatter(x=df2.index, y = df2['BBL_5_2.0'],name="BBANDS1"), row=3, col=1)
         # fig3.add_traces(go.Scatter(x=df2.index, y = df2['BBU_5_2.0'],name="BBANDS"))
-        fig3.update_traces(xaxis='x3')
-        fig3.update_layout(height=1000, width=1500, title_text="Momentum indicators", xaxis3_rangeslider_visible=False,template=template_plotly)# garder commentaire :xaxis_showticklabels=True)#,hoverdistance=0)
+        # fig3.update_traces(xaxis='x3')
+        # fig3.update_layout(height=1000, width=1500, title_text="Momentum indicators", xaxis3_rangeslider_visible=False,template=template_plotly)# garder commentaire :xaxis_showticklabels=True)#,hoverdistance=0)
         # fig3.update_xaxes(x=df3.index)
         Fig_candlestick_setup(fig3)
         # st.write(fig3.data[15])
+        
+        #Caractéristiques de l'affichage
         Fig_candlestick_setup(fig3,position=1)
-        Fig_setup()
+        Fig_setup(fig3,height=1050)
         Hide_weekends(fig3,Asset)
+        
+        fig3.update_traces(xaxis='x5')
+        fig3.update_layout(title_text="Momentum indicators", xaxis5_rangeslider_visible=False)# garder commentaire :xaxis_showticklabels=True)#,hoverdistance=0)
         # fig3['layout'].update=layout
         st.plotly_chart(fig3)
 
