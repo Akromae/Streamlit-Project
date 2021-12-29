@@ -75,7 +75,7 @@ def fillcol(label):
 date=Today_date(1)
 date_fonda='2021-12-26'#Today_date(0)#
 
-Period_depth_list=['','3mo','2mo','1mo','5d','1d']#:datetime.today() - timedelta(days=round(365/2)),'3mo':datetime.today() - timedelta(days=round(365/3)),'1mo':datetime.today() - timedelta(days=31),'5d':datetime.today() - timedelta(days=7),'1d':datetime.today() - timedelta(days=1)}
+Period_depth_list=['','3mo','2mo','1mo','2wk','5d','1d']#:datetime.today() - timedelta(days=round(365/2)),'3mo':datetime.today() - timedelta(days=round(365/3)),'1mo':datetime.today() - timedelta(days=31),'5d':datetime.today() - timedelta(days=7),'1d':datetime.today() - timedelta(days=1)}
 Period_step_dict={'':'','1d':['D',86400000],'4h':['4H',86400000],'1h':['1H',3600000],'30m':['30min',1800000],'15m':['15min',900000],'5m':['5min',300000],'2m':['2min',120000],'1m':['1min',60000]}#{'6mo':datetime.today() - timedelta(days=round(365/2)),'3mo':datetime.today() - timedelta(days=round(365/3)),'1mo':datetime.today() - timedelta(days=31),'5d':datetime.today() - timedelta(days=7),'1d':datetime.today() - timedelta(days=1)}
 
 ####################################################################################################################
@@ -108,16 +108,14 @@ def load_yields_data(indice):
 
 @st.cache(suppress_st_warning=True,allow_output_mutation=True)
 def load_market_data_perso(Ticker_stock,frequency,histo_depth):
-    stock_data= yf.download(tickers=Ticker_stock,period=histo_depth,interval = frequency,
-                            auto_adjust = False,threads = 8,proxy = None)
+    stock_data= yf.download(tickers=Ticker_stock,period=histo_depth,interval = frequency,auto_adjust = False,threads = 8,proxy = None)
     return stock_data
 
 @st.cache(suppress_st_warning=True,allow_output_mutation=True)
 def load_prices_data_perso(Ticker_stock,frequency,histo_depth):
     stock_data=load_market_data_perso(Ticker_stock,frequency,histo_depth)
     stock_data=stock_data.iloc[:, stock_data.columns.get_level_values(0)=='Close']
-    stock_data=stock_data.rename(columns={'Close': Ticker_stock})
-    # stock_data.columns = stock_data.columns.droplevel(1)
+    stock_data=stock_data.rename(columns={'Close': Ticker_stock}) 
     return stock_data
 
 @st.cache(suppress_st_warning=True,allow_output_mutation=True)
@@ -541,8 +539,8 @@ elif page == "Focus":
             df_market_Focus=df_market.copy()
             df_prices_Focus=df_prices.copy()   
             
-            
             Ticker_focus=dict_name_to_ticker[stock_name_Focus]
+            # st.write(Ticker_focus)
             
             if (Period_step!='') & (Period_depth!=''):
                 # st.write(dict_name_to_ticker[stock_name_Focus])
