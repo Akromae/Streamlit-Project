@@ -28,7 +28,7 @@ import yfinance as yf
 Fondamental_data_path='D:\\Julien\\Investissement\\Streamlit\\Histo Data Fondamental'
 Stock_prices_data_path='D:\\Julien\\Investissement\\Streamlit\\Histo Data Stock prices'
 Crypto_data_file='D:\\Julien\\Investissement\\Symboles\\Crypto Tickers EUR.xlsx'
-Index_list=['Cryptocurrencies','AEX Index','AS25 Index','BEL20 Index','CH30 Index','DAX Index','CAC Index','S&P500','NASDAQ 100','RUSSEL 1000','FTSEMIB Index','HDAX Index','HEX25 Index','IBEX Index','NEY Index','OMX Index','OMXC25 Index','SBF120 Index','SMI Index','SPTSX60 Index','NASDAQ 1','NASDAQ 2','NASDAQ 3','NASDAQ 4']
+Index_list=['Cryptocurrencies','AEX Index','AS25 Index','BEL20 Index','CH30 Index','DAX Index','CAC Index','S&P500','NASDAQ 100','RUSSEL 1000','FTSEMIB Index','HDAX Index','HEX25 Index','IBEX Index','NEY Index','OMX Index','OMXC25 Index','SBF120 Index','SMI Index','SPTSX60 Index','NASDAQ 1','NASDAQ 2','NASDAQ 3','NASDAQ 4','NYSE 1','NYSE 2']
 # Index_list=['Cryptocurrencies']
 
 ####################################################################################################################
@@ -72,14 +72,14 @@ def fillcol(label):
 #Input constants
 
 # date=Today_date()
-date=Today_date(1)
+date=Today_date(0)
 date_fonda='2021-12-26'#Today_date(0)#
 
-Period_depth_list=['','3mo','2mo','1mo','2wk','5d','1d']#:datetime.today() - timedelta(days=round(365/2)),'3mo':datetime.today() - timedelta(days=round(365/3)),'1mo':datetime.today() - timedelta(days=31),'5d':datetime.today() - timedelta(days=7),'1d':datetime.today() - timedelta(days=1)}
+Period_depth_list=['','3mo','2mo','1mo','1wk','2wk','5d','1d']#:datetime.today() - timedelta(days=round(365/2)),'3mo':datetime.today() - timedelta(days=round(365/3)),'1mo':datetime.today() - timedelta(days=31),'5d':datetime.today() - timedelta(days=7),'1d':datetime.today() - timedelta(days=1)}
 Period_step_dict={'':'','1d':['D',86400000],'4h':['4H',86400000],'1h':['1H',3600000],'30m':['30min',1800000],'15m':['15min',900000],'5m':['5min',300000],'2m':['2min',120000],'1m':['1min',60000]}#{'6mo':datetime.today() - timedelta(days=round(365/2)),'3mo':datetime.today() - timedelta(days=round(365/3)),'1mo':datetime.today() - timedelta(days=31),'5d':datetime.today() - timedelta(days=7),'1d':datetime.today() - timedelta(days=1)}
 
 ####################################################################################################################
-#Execution of cash functions
+#Execution of cash functions (Data Histo, fonda and concatenate)
 
 start_time = time.time()
 
@@ -102,6 +102,19 @@ def load_prices_data(indice):
 def load_yields_data(indice):
     df_yields_data=pickle.load(open(Stock_prices_data_path+'\\'+date+'\\'+date+' '+indice+' - Yields','rb'), encoding='latin1')    
     return df_yields_data
+
+@st.cache(suppress_st_warning=True,allow_output_mutation=True,show_spinner=False)
+def concat_fonda(df):
+    if df_fondamental_temp!={}:
+        df_concat=pd.concat(df) 
+    else: 
+        df_concat=[]
+    return df_concat
+
+@st.cache(suppress_st_warning=True,allow_output_mutation=True,show_spinner=False)
+def concat_list_df(liste):
+    df_concat=pd.concat(liste,axis=1)
+    return df_concat
 
 ########################################################
 #historique personnalisé avec pas plus faible qu'un jour
@@ -141,13 +154,6 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 template_plotly="plotly_dark"
 
-####################################################################################################################
-#Display Streamlit function
-
-
-                # except:
-                #     pass
-
 #######################################################
 #Load Dataframes
 
@@ -165,21 +171,7 @@ for index in Index_list:
 
 print("--- %s seconds part load data---" % (time.time() - start_time))
 
-@st.cache(suppress_st_warning=True,allow_output_mutation=True,show_spinner=False)
-def concat_fonda():
-    if df_fondamental_temp!={}:
-        df_concat=pd.concat(df_fondamental_temp) 
-    else: 
-        df_concat=[]
-    return df_concat
-
-@st.cache(suppress_st_warning=True,allow_output_mutation=True,show_spinner=False)
-def concat_list_df(liste):
-    df_concat=pd.concat(liste,axis=1)
-    return df_concat
-
-
-df_fondamental= concat_fonda()
+df_fondamental= concat_fonda(df_fondamental_temp)
 df_market= concat_list_df(df_market_temp)
 df_prices= concat_list_df(df_prices_temp)
 df_yields= concat_list_df(df_yields_temp)
@@ -670,10 +662,10 @@ elif page == "Focus":
             # layout = go.Layout(xaxis_rangeslider_visible=False,width=1500,height=600,template=template_plotly)#,xaxis=dict(type='category'))
             # fig.update_layout(xaxis_rangeslider_visible=False
             # fig = go.Figure(layout=Fig_setup()) 
-            fig3 = make_subplots(rows=5, cols=1,
+            fig3 = make_subplots(rows=6, cols=1,
                         shared_xaxes=True,
                         vertical_spacing=0.015,
-                        row_width=[0.2, 0.2, 0.1,0.4,0.4])
+                        row_width=[0.2, 0.2, 0.2, 0.1,0.4,0.4])
     
             fig3.append_trace(go.Candlestick(x=df_market_Focus_ticker.index,
                                         open=df_market_Focus_ticker['Open'],
@@ -742,6 +734,7 @@ elif page == "Focus":
             
             df3=ta.macd(df_market_Focus_ticker['Close']).dropna()
             df4=ta.rsi(df_market_Focus_ticker['Close']).to_frame().dropna()
+            df5=ta.vwap(df_market_Focus_ticker['Low'],df_market_Focus_ticker['High'],df_market_Focus_ticker['Close'],df_market_Focus_ticker['Volume']).to_frame()
             # st.dataframe(df3)
             # st.dataframe(df4)
             # st.write(df4.columns)
@@ -774,6 +767,9 @@ elif page == "Focus":
             fig3.add_trace(go.Scatter(x=df3.index, y = df3['MACD_12_26_9'],name="MACD",showlegend=False), row=4, col=1)
             fig3.add_trace(go.Scatter(x=df3.index, y = df3['MACDs_12_26_9'],name="MACD signal",showlegend=False), row=4, col=1)
             fig3.append_trace(go.Scatter(x=df4.index, y = df4["RSI_14"],name="RSI"), row=5, col=1)
+            fig3.append_trace(go.Scatter(x=df5.index, y = df5['VWAP_D'],name="VWAP"), row=6, col=1)
+            # fig3.add_trace(go.Scatter(x=df5.index, y = df5['HWM'],name="HWM"), row=1, col=1)
+            # fig3.add_trace(go.Scatter(x=df5.index, y = df5['HWL'],name="HWL"), row=1, col=1)
             # fig3.append_trace(go.Scatter(x=df2.index, y = df2['BBL_5_2.0'],name="BBANDS1"), row=3, col=1)
             # fig3.add_traces(go.Scatter(x=df2.index, y = df2['BBU_5_2.0'],name="BBANDS"))
             # fig3.update_traces(xaxis='x3')
@@ -786,8 +782,8 @@ elif page == "Focus":
             Fig_candlestick_setup(fig3,position=1)
             Fig_setup(fig3,height=1050)
             
-            fig3.update_traces(xaxis='x5')
-            fig3.update_layout(title_text="Momentum indicators", xaxis5_rangeslider_visible=False)# garder commentaire :xaxis_showticklabels=True)#,hoverdistance=0)
+            fig3.update_traces(xaxis='x6')
+            fig3.update_layout(title_text="Momentum indicators", xaxis6_rangeslider_visible=False)# garder commentaire :xaxis_showticklabels=True)#,hoverdistance=0)
             # fig3['layout'].update=layout
             
             if (Period_step!='') & (Period_depth!=''):
