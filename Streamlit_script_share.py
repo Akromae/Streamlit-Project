@@ -12,6 +12,7 @@ import pickle
 import time
 # import talib
 from TA_technical_patterns import candlestick_patterns
+import plotly as plt
 import plotly.graph_objects as go
 # import pyfolio as pf
 import seaborn as sns
