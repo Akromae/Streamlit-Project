@@ -18,11 +18,11 @@ Stock_prices_data_path='D:\\Julien\\Investissement\\Streamlit\\Histo Data Stock 
 
 Final_data_file='D:\Julien\Investissement\Symboles\Liste_Ticker_Final_with_IPO.xlsx'
 Final_data_file_info='D:\Julien\Investissement\Symboles\Stock World Tickers.xlsx'
-Index_list=['Cryptocurrencies','RUSSEL 1000','CAC Index','S&P500','NASDAQ 100','AEX Index','AS25 Index','BEL20 Index','CH30 Index','DAX Index','FTSEMIB Index','HDAX Index','HEX25 Index','IBEX Index','NEY Index','OMX Index','OMXC25 Index','SBF120 Index','SMI Index','SPTSX60 Index','NASDAQ 1','NASDAQ 2','NASDAQ 3','NASDAQ 4']
-Index_list_fonda=['RUSSEL 1000','CAC Index','S&P500','NASDAQ 100','AEX Index','AS25 Index','BEL20 Index','CH30 Index','DAX Index','FTSEMIB Index','HDAX Index','HEX25 Index','IBEX Index','NEY Index','OMX Index','OMXC25 Index','SBF120 Index','SMI Index','SPTSX60 Index','NASDAQ 1','NASDAQ 2','NASDAQ 3','NASDAQ 4']# Index_list=['Cryptocurrencies']
+Index_list=['Cryptocurrencies','RUSSEL 1000','CAC Index','S&P500','NASDAQ 100','AEX Index','AS25 Index','BEL20 Index','CH30 Index','DAX Index','FTSEMIB Index','HDAX Index','HEX25 Index','IBEX Index','NEY Index','OMX Index','OMXC25 Index','SBF120 Index','SMI Index','SPTSX60 Index','NASDAQ 1','NASDAQ 2','NASDAQ 3','NASDAQ 4','NYSE 1','NYSE 2']
+Index_list_fonda=['RUSSEL 1000','CAC Index','S&P500','NASDAQ 100','AEX Index','AS25 Index','BEL20 Index','CH30 Index','DAX Index','FTSEMIB Index','HDAX Index','HEX25 Index','IBEX Index','NEY Index','OMX Index','OMXC25 Index','SBF120 Index','SMI Index','SPTSX60 Index','NASDAQ 1','NASDAQ 2','NASDAQ 3','NASDAQ 4','NYSE 1','NYSE 2']# Index_list=['Cryptocurrencies']
 Crypto_list=['Cryptocurrencies']
 # Index_list=['CH30 Index','DAX Index','FTSEMIB Index','HDAX Index','HEX25 Index','IBEX Index','NEY Index','OMX Index','OMXC25 Index','SBF120 Index','SMI Index','SPTSX60 Index','NASDAQ']
-
+# Index_list_fonda=['NYSE 1','NYSE 2']
 ####################################################################################################################
 #Other functions used
 
@@ -32,13 +32,18 @@ Crypto_list=['Cryptocurrencies']
 
 def Import_data_ticker(file,Index):
     import pandas as pd
-    Df_final=pd.read_excel(file, index_col=0)
+    Df_final=pd.read_excel(file,'Sheet1', index_col=0)
     Df_info=pd.read_excel(Final_data_file_info, index_col=0)
     Df_final=Df_final[Df_final['Ticker'].isin(Df_info[Df_info['Stock Exchange']==Index].index.to_list())]
     Final_Excel_data_dic=Df_final["Ticker"].to_list()
     
     return Final_Excel_data_dic
 
+def max_date_imported():
+    files=os.listdir(Stock_prices_data_path)
+    max_date=max(files, key=lambda d: datetime.datetime.strptime(d, '%Y-%m-%d'))
+    return max_date
+  
 def Today_date():
     return datetime.datetime.today().strftime('%Y-%m-%d')
 
@@ -59,6 +64,59 @@ def Import_Fondamental_data_test(ticker_list):
 
 ####################################################################################################################
                                             #Import data from yahoo finance
+
+###################################################################
+#Import historical stock prices function incrémental --> Fail car très lent
+
+# def Import_stock_prices_incrementation(Symbols,date,Int = "1d"):
+#     # inputs
+    
+#     infile_m=open(Stock_prices_data_path+'\\'+date_last_histo+'\\'+date_last_histo+' '+index+' - Market data','rb')
+#     infile_p=open(Stock_prices_data_path+'\\'+date_last_histo+'\\'+date_last_histo+' '+index+' - Prices','rb')
+#     infile_y=open(Stock_prices_data_path+'\\'+date_last_histo+'\\'+date_last_histo+' '+index+' - Yields','rb')
+    
+#     DataFrame_m=pickle.load(infile_m, encoding='latin1')
+#     DataFrame_p=pickle.load(infile_p, encoding='latin1')
+#     DataFrame_y=pickle.load(infile_y, encoding='latin1')
+    
+#     DataFrame_m_retraité=DataFrame_m.drop(DataFrame_m.tail(3).index)
+#     DataFrame_p_retraité=DataFrame_p.drop(DataFrame_p.tail(3).index)
+#     DataFrame_y_retraité=DataFrame_y.drop(DataFrame_y.tail(3).index)
+    
+#     max_date_histo=max(DataFrame_m_retraité.index)
+#     start_date=max_date_histo.strftime('%Y-%m-%d')
+    
+#     DataFrame_m_retraité=DataFrame_m_retraité.drop(DataFrame_m_retraité.tail(1).index)
+#     DataFrame_p_retraité=DataFrame_p_retraité.drop(DataFrame_p_retraité.tail(1).index)
+#     DataFrame_y_retraité=DataFrame_y_retraité.drop(DataFrame_y_retraité.tail(1).index)
+    
+#     Stock_Tickers=""
+#     for stock in Symbols:
+#         Stock_Tickers += " " 
+#         Stock_Tickers += stock
+
+#     stock_data= yf.download(tickers=Stock_Tickers,group_by = 'ticker',start=start_date,interval = Int,auto_adjust = False,threads = 8,proxy = None)
+    
+#     frames=[DataFrame_m_retraité,stock_data]
+#     df_m=pd.concat(frames)
+#     outfile=open(Stock_prices_data_path+'\\'+Today_date()+'\\'+date+' '+index+' - Market data','wb')
+#     pickle.dump(df_m, outfile)
+#     outfile.close()
+    
+#     DataFrame_p=stock_data.iloc[:, stock_data.columns.get_level_values(1)=='Close']
+#     DataFrame_p.columns = DataFrame_p.columns.droplevel(1)
+#     frames=[DataFrame_p_retraité,DataFrame_p]
+#     df_p=pd.concat(frames)
+#     outfile=open(Stock_prices_data_path+'\\'+Today_date()+'\\'+date+' '+index+' - Prices','wb')
+#     pickle.dump(df_p, outfile)
+#     outfile.close()
+
+#     DataFrame_y=DataFrame_y.pct_change().iloc[1:]
+#     frames=[DataFrame_y_retraité,DataFrame_y]
+#     df_y=pd.concat(frames)
+#     outfile=open(Stock_prices_data_path+'\\'+Today_date()+'\\'+date+' '+index+' - Yields','wb')
+#     pickle.dump(df_y, outfile)
+#     outfile.close()
 
 ###################################################################
 #Import historical stock prices function
@@ -160,6 +218,27 @@ start_time1 = time.time()
     
 #     df_prices=Import_stock_prices(dic_ticker,input_date)
 #     df_yields=Rendement_Fermeture_Export_historical_data(input_date)
+
+
+#     ###################################################################
+
+# max_date_imported()
+
+# index='CAC Index'
+
+# for index in Index_list:
+#     print(index+" - Stock data - Import Process")
+    
+#     dic_ticker=Import_data_ticker(Final_data_file,index)
+    
+#     start_time = time.time()
+    
+#     date_last_histo=max_date_imported()
+#     Dossier_stock_prices_data_creation(input_date)
+    
+#     Import_stock_prices_incrementation(dic_ticker,input_date)
+#     time.sleep(2)
+
 
 for index in Index_list:
     

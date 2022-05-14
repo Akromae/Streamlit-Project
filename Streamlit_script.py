@@ -74,6 +74,7 @@ def fillcol(label):
 # date=Today_date()
 date=Today_date(0)
 date_fonda='2021-12-26'#Today_date(0)#
+date_fonda=Today_date(0)
 
 Period_depth_list=['','3mo','2mo','1mo','1wk','2wk','5d','1d']#:datetime.today() - timedelta(days=round(365/2)),'3mo':datetime.today() - timedelta(days=round(365/3)),'1mo':datetime.today() - timedelta(days=31),'5d':datetime.today() - timedelta(days=7),'1d':datetime.today() - timedelta(days=1)}
 Period_step_dict={'':'','1d':['D',86400000],'4h':['4H',86400000],'1h':['1H',3600000],'30m':['30min',1800000],'15m':['15min',900000],'5m':['5min',300000],'2m':['2min',120000],'1m':['1min',60000]}#{'6mo':datetime.today() - timedelta(days=round(365/2)),'3mo':datetime.today() - timedelta(days=round(365/3)),'1mo':datetime.today() - timedelta(days=31),'5d':datetime.today() - timedelta(days=7),'1d':datetime.today() - timedelta(days=1)}
@@ -144,13 +145,13 @@ start_time = time.time()
 
 st.set_page_config(layout='wide')
 
-hide_streamlit_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            </style>
-            """
-st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+# hide_streamlit_style = """
+#             <style>
+#             #MainMenu {visibility: hidden;}
+#             footer {visibility: hidden;}
+#             </style>
+#             """
+# st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
 
 template_plotly="plotly_dark"
 
@@ -831,7 +832,7 @@ elif page == "Technical Analysis":
                     ticker_name=ticker
                 
                 if ind!=None:                    
-                            fig = go.Figure(data=[go.Candlestick(x=df_market_TA.index,
+                            fig = go.Figure(data=[go.Candlestick(x=df_market_TA_ticker.index,
                                             open=df_market_TA_ticker['Open'],
                                             high=df_market_TA_ticker['High'],
                                             low=df_market_TA_ticker['Low'],
@@ -861,7 +862,6 @@ elif page == "Technical Analysis":
                 df_market_TA_ticker.columns=df_market_TA_ticker.columns.droplevel(0)
                 df_market_TA_ticker.columns=df_market_TA_ticker.columns.droplevel(0)
                 df_market_TA_ticker=df_market_TA_ticker.dropna()
-                
                 # st.dataframe(df_market_TA_ticker)
                 # st.write(pattern)
                 results = pattern_function(df_market_TA_ticker['Open'], df_market_TA_ticker['High'], df_market_TA_ticker['Low'], df_market_TA_ticker['Close'])
@@ -879,7 +879,7 @@ elif page == "Technical Analysis":
                     ticker_name=Stock_TA
                 
                 if ind!=None:                    
-                    fig = go.Figure(data=[go.Candlestick(opacity=1,x=df_market_TA.index,
+                    fig = go.Figure(data=[go.Candlestick(opacity=1,x=df_market_TA_ticker.index,
                                     open=df_market_TA_ticker['Open'],
                                     high=df_market_TA_ticker['High'],
                                     low=df_market_TA_ticker['Low'],
