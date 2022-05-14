@@ -246,7 +246,7 @@ if Asset:
         df_fondamental_Index=df_fondamental.loc[Index]
         Sector_list=df_fondamental_Index[df_fondamental_Index['Attribute']==Sector_name]['Recent'].drop_duplicates().tolist()
         df_fondamental_Index = df_fondamental_Index.astype(str)
-        page = st.sidebar.selectbox("Choose your analysis view :", ["Relative Value", "Focus"]#, "Technical Analysis"])
+        page = st.sidebar.selectbox("Choose your analysis view :", ["Relative Value", "Focus"])#, "Technical Analysis"])
         st.header(page)
         # st.write(dict_ticker_to_name)
         filtered = {k: v for k, v in dict_ticker_to_name.items() if v is not None}
@@ -795,128 +795,128 @@ elif page == "Focus":
                 
             st.plotly_chart(fig3)
 
-elif page == "Technical Analysis":
+# elif page == "Technical Analysis":
     
-    TA_analysis_type=st.sidebar.selectbox("TA Analysis :", ["All Market","Stock Focus"])
+#     TA_analysis_type=st.sidebar.selectbox("TA Analysis :", ["All Market","Stock Focus"])
     
-    df_market_TA=df_market.copy()
+#     df_market_TA=df_market.copy()
         
-    if TA_analysis_type=="All Market":
-        patterns_sorted.append("All")
-        pattern_list = st.multiselect("Choose your technical analysis", patterns_sorted)
-        if "All" in pattern_list:
-            pattern_list = list(candlestick_patterns.values())
-        else:
-            pattern_list = pattern_list
+#     if TA_analysis_type=="All Market":
+#         patterns_sorted.append("All")
+#         pattern_list = st.multiselect("Choose your technical analysis", patterns_sorted)
+#         if "All" in pattern_list:
+#             pattern_list = list(candlestick_patterns.values())
+#         else:
+#             pattern_list = pattern_list
         
-        for pattern in pattern_list:
-            for ticker in sorted(df_market_TA.columns.get_level_values(1).unique().tolist()):
-                pattern_function = getattr(talib, list(candlestick_patterns.keys())[list(candlestick_patterns.values()).index(pattern)])
+#         for pattern in pattern_list:
+#             for ticker in sorted(df_market_TA.columns.get_level_values(1).unique().tolist()):
+#                 pattern_function = getattr(talib, list(candlestick_patterns.keys())[list(candlestick_patterns.values()).index(pattern)])
 
-                df_market_TA_ticker=df_market_TA.loc[:,df_market_TA.columns.get_level_values(1)==ticker]
-                df_market_TA_ticker.columns=df_market_TA_ticker.columns.droplevel(0)
-                df_market_TA_ticker.columns=df_market_TA_ticker.columns.droplevel(0)
-                df_market_TA_ticker=df_market_TA_ticker.dropna()
-                results = pattern_function(df_market_TA_ticker['Open'], df_market_TA_ticker['High'], df_market_TA_ticker['Low'], df_market_TA_ticker['Close'])
-                last = results.tail(1).values[0]
-                if last > 0:
-                    ind = 'bullish'
-                elif last < 0:
-                    ind = 'bearish'
-                else:
-                    ind = None
+#                 df_market_TA_ticker=df_market_TA.loc[:,df_market_TA.columns.get_level_values(1)==ticker]
+#                 df_market_TA_ticker.columns=df_market_TA_ticker.columns.droplevel(0)
+#                 df_market_TA_ticker.columns=df_market_TA_ticker.columns.droplevel(0)
+#                 df_market_TA_ticker=df_market_TA_ticker.dropna()
+#                 results = pattern_function(df_market_TA_ticker['Open'], df_market_TA_ticker['High'], df_market_TA_ticker['Low'], df_market_TA_ticker['Close'])
+#                 last = results.tail(1).values[0]
+#                 if last > 0:
+#                     ind = 'bullish'
+#                 elif last < 0:
+#                     ind = 'bearish'
+#                 else:
+#                     ind = None
                 
-                if ticker in dict_ticker_to_name:
-                    ticker_name=dict_ticker_to_name[ticker]
-                else:
-                    ticker_name=ticker
+#                 if ticker in dict_ticker_to_name:
+#                     ticker_name=dict_ticker_to_name[ticker]
+#                 else:
+#                     ticker_name=ticker
                 
-                if ind!=None:                    
-                            fig = go.Figure(data=[go.Candlestick(x=df_market_TA_ticker.index,
-                                            open=df_market_TA_ticker['Open'],
-                                            high=df_market_TA_ticker['High'],
-                                            low=df_market_TA_ticker['Low'],
-                                            close=df_market_TA_ticker['Close'])],
-                                            layout=Fig_setup())
+#                 if ind!=None:                    
+#                             fig = go.Figure(data=[go.Candlestick(x=df_market_TA_ticker.index,
+#                                             open=df_market_TA_ticker['Open'],
+#                                             high=df_market_TA_ticker['High'],
+#                                             low=df_market_TA_ticker['Low'],
+#                                             close=df_market_TA_ticker['Close'])],
+#                                             layout=Fig_setup())
                             
-                            fig.update_layout(
-                                title=ticker_name+' - '+ind ,
-                                xaxis_title="Date",
-                                yaxis_title="Price",
-                            )
-                            # fig.update_layout(xaxis_rangeslider_visible=False,width=1300,height=600)
-                            Fig_candlestick_setup(fig)
-                            Hide_weekends(fig,Asset)
-                            # fig.data[1].decreasing.line.color = 'rgba(0,0,0,0)'
-                            st.plotly_chart(fig)
-    elif TA_analysis_type=="Stock Focus":
-        stock_list=sorted(list(dict_ticker_to_name.values()))
-        Stock_TA=st.sidebar.selectbox("Select a stock :", stock_list)
-        if Stock_TA!=None:
-            Stock_TA_tick=dict_name_to_ticker[Stock_TA]
-            i=0
+#                             fig.update_layout(
+#                                 title=ticker_name+' - '+ind ,
+#                                 xaxis_title="Date",
+#                                 yaxis_title="Price",
+#                             )
+#                             # fig.update_layout(xaxis_rangeslider_visible=False,width=1300,height=600)
+#                             Fig_candlestick_setup(fig)
+#                             Hide_weekends(fig,Asset)
+#                             # fig.data[1].decreasing.line.color = 'rgba(0,0,0,0)'
+#                             st.plotly_chart(fig)
+#     elif TA_analysis_type=="Stock Focus":
+#         stock_list=sorted(list(dict_ticker_to_name.values()))
+#         Stock_TA=st.sidebar.selectbox("Select a stock :", stock_list)
+#         if Stock_TA!=None:
+#             Stock_TA_tick=dict_name_to_ticker[Stock_TA]
+#             i=0
         
-            for pattern in patterns_sorted:
-                pattern_function = getattr(talib, list(candlestick_patterns.keys())[list(candlestick_patterns.values()).index(pattern)])
-                df_market_TA_ticker=df_market_TA.loc[:,df_market_TA.columns.get_level_values(1)==Stock_TA_tick]
-                df_market_TA_ticker.columns=df_market_TA_ticker.columns.droplevel(0)
-                df_market_TA_ticker.columns=df_market_TA_ticker.columns.droplevel(0)
-                df_market_TA_ticker=df_market_TA_ticker.dropna()
-                # st.dataframe(df_market_TA_ticker)
-                # st.write(pattern)
-                results = pattern_function(df_market_TA_ticker['Open'], df_market_TA_ticker['High'], df_market_TA_ticker['Low'], df_market_TA_ticker['Close'])
-                last = results.tail(1).values[0]
-                if last > 0:
-                    ind = 'bullish'
-                elif last < 0:
-                    ind = 'bearish'
-                else:
-                    ind = None
+#             for pattern in patterns_sorted:
+#                 pattern_function = getattr(talib, list(candlestick_patterns.keys())[list(candlestick_patterns.values()).index(pattern)])
+#                 df_market_TA_ticker=df_market_TA.loc[:,df_market_TA.columns.get_level_values(1)==Stock_TA_tick]
+#                 df_market_TA_ticker.columns=df_market_TA_ticker.columns.droplevel(0)
+#                 df_market_TA_ticker.columns=df_market_TA_ticker.columns.droplevel(0)
+#                 df_market_TA_ticker=df_market_TA_ticker.dropna()
+#                 # st.dataframe(df_market_TA_ticker)
+#                 # st.write(pattern)
+#                 results = pattern_function(df_market_TA_ticker['Open'], df_market_TA_ticker['High'], df_market_TA_ticker['Low'], df_market_TA_ticker['Close'])
+#                 last = results.tail(1).values[0]
+#                 if last > 0:
+#                     ind = 'bullish'
+#                 elif last < 0:
+#                     ind = 'bearish'
+#                 else:
+#                     ind = None
                 
-                if Stock_TA in dict_ticker_to_name:
-                    ticker_name=dict_ticker_to_name[Stock_TA]
-                else:
-                    ticker_name=Stock_TA
+#                 if Stock_TA in dict_ticker_to_name:
+#                     ticker_name=dict_ticker_to_name[Stock_TA]
+#                 else:
+#                     ticker_name=Stock_TA
                 
-                if ind!=None:                    
-                    fig = go.Figure(data=[go.Candlestick(opacity=1,x=df_market_TA_ticker.index,
-                                    open=df_market_TA_ticker['Open'],
-                                    high=df_market_TA_ticker['High'],
-                                    low=df_market_TA_ticker['Low'],
-                                    close=df_market_TA_ticker['Close']
-                                    )],
-                                    layout=Fig_setup())
+#                 if ind!=None:                    
+#                     fig = go.Figure(data=[go.Candlestick(opacity=1,x=df_market_TA_ticker.index,
+#                                     open=df_market_TA_ticker['Open'],
+#                                     high=df_market_TA_ticker['High'],
+#                                     low=df_market_TA_ticker['Low'],
+#                                     close=df_market_TA_ticker['Close']
+#                                     )],
+#                                     layout=Fig_setup())
                     
-                    Fig_candlestick_setup(fig)
-                    Hide_weekends(fig,Asset)
+#                     Fig_candlestick_setup(fig)
+#                     Hide_weekends(fig,Asset)
                     
-                    fig.update_layout(
-                        title=ticker_name+' - '+ pattern +' - '+ind ,
-                        xaxis_title="Date",
-                        width=1500,height=600,
-                        yaxis_title="Price"
-                    )
+#                     fig.update_layout(
+#                         title=ticker_name+' - '+ pattern +' - '+ind ,
+#                         xaxis_title="Date",
+#                         width=1500,height=600,
+#                         yaxis_title="Price"
+#                     )
                     
-                    # fig.update_layout(xaxis_rangeslider_visible=False)
+#                     # fig.update_layout(xaxis_rangeslider_visible=False)
                     
                     
-                    st.plotly_chart(fig)
-                    ############################################################################
-                    #Altair test
-                    # base = alt.Chart(df_market_TA).encode(
-                    #     color=alt.condition("datum.Open <= datum.Close",
-                    #                         alt.value("#06982d"), alt.value("#ae1325"))
-                    # )
+#                     st.plotly_chart(fig)
+#                     ############################################################################
+#                     #Altair test
+#                     # base = alt.Chart(df_market_TA).encode(
+#                     #     color=alt.condition("datum.Open <= datum.Close",
+#                     #                         alt.value("#06982d"), alt.value("#ae1325"))
+#                     # )
                     
-                    # rule = base.mark_rule().encode(alt.Y('Low:Q', title='Price',
-                    #                                         scale=alt.Scale(zero=False)), alt.Y2('High:Q'))
-                    # bar = base.mark_bar().encode(alt.Y('Open:Q'), alt.Y2('Close:Q'))
-                    # st.altair_chart(rule + bar, use_container_width=True)
-                    ############################################################################
-                else:    
-                   i+=1
-            if len(patterns_sorted)==i:
-                st.write("No Technical indicators bullish or bearish for "+str(ticker_name)+" stock")
+#                     # rule = base.mark_rule().encode(alt.Y('Low:Q', title='Price',
+#                     #                                         scale=alt.Scale(zero=False)), alt.Y2('High:Q'))
+#                     # bar = base.mark_bar().encode(alt.Y('Open:Q'), alt.Y2('Close:Q'))
+#                     # st.altair_chart(rule + bar, use_container_width=True)
+#                     ############################################################################
+#                 else:    
+#                    i+=1
+#             if len(patterns_sorted)==i:
+#                 st.write("No Technical indicators bullish or bearish for "+str(ticker_name)+" stock")
 
 
 print("Temps d'execution : %s secondes" % (time.time() - start_time))
