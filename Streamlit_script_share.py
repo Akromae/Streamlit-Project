@@ -12,7 +12,6 @@ import pickle
 import time
 # import talib
 from TA_technical_patterns import candlestick_patterns
-import plotly as plt
 import plotly.graph_objects as go
 # import pyfolio as pf
 import seaborn as sns
@@ -915,9 +914,9 @@ elif page == "Focus":
 #                     # st.altair_chart(rule + bar, use_container_width=True)
 #                     ############################################################################
 #                 else:    
-#                    i+=1
+#                     i+=1
 #             if len(patterns_sorted)==i:
-#                 st.write("No Technical indicators bullish or bearish for "+str(ticker_name)+" stock")
+                # st.write("No Technical indicators bullish or bearish for "+str(ticker_name)+" stock")
 
 
 print("Temps d'execution : %s secondes" % (time.time() - start_time))
